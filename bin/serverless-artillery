@@ -73,6 +73,11 @@ const yargs = require('yargs')
         description: 'Only write JSON to console.log to facilitate piping the invocation result into a tool such as jq',
         requiresArg: false,
       },
+      e: {
+        alias: 'environment',
+        description: 'Execute the script using the informed environment.',
+        requiresArg: true,
+      },
     },
     /**
      * Custom argument rejection logic, to deal with legacy, argument conflicts (between slsart and sls), and
