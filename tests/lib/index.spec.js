@@ -712,6 +712,8 @@ scenarios:
       const completeMessage = `${os.EOL}\tYour function invocation has completed.${os.EOL}`
       const willCompleteMessage = durationInSeconds => `${os.EOL
       }\tYour function has been invoked. The load is scheduled to be completed in ${durationInSeconds} seconds.${os.EOL}`
+      const invokingMessage = environment => `${os.EOL
+      }\tInvoking test Lambda${environment ? ` with environment ${environment}` : ''}${os.EOL}`
 
       const replaceImpl = (scriptConstraintsResult, serverlessRunnerResult, testFunc) => (() => {
         const { scriptConstraints } = slsart.impl
@@ -792,6 +794,30 @@ scenarios:
             {},
             () => slsart.invoke({ d: testJsonScriptStringified })
               .then(() => expect(logs[1]).to.eql(willCompleteMessage(3))) // eslint-disable-line comma-dangle
+          ) // eslint-disable-line comma-dangle
+        )
+      })
+      describe('environment', () => {
+        it('environment adds `environment` to the script',
+          replaceImpl(
+            { allowance: 2, required: 3 },
+            {},
+            () => slsart.invoke({ environment: 'test', d: testJsonScriptStringified })
+              .then(() => {
+                expect(logs[0]).to.eql(invokingMessage('test'))
+                expect(logs[1]).to.eql(willCompleteMessage(3))
+              }) // eslint-disable-line comma-dangle
+          ) // eslint-disable-line comma-dangle
+        )
+        it('e adds `environment` to the script',
+          replaceImpl(
+            { allowance: 2, required: 3 },
+            {},
+            () => slsart.invoke({ e: 'test', d: testJsonScriptStringified })
+              .then(() => {
+                expect(logs[0]).to.eql(invokingMessage('test'))
+                expect(logs[1]).to.eql(willCompleteMessage(3))
+              }) // eslint-disable-line comma-dangle
           ) // eslint-disable-line comma-dangle
         )
       })

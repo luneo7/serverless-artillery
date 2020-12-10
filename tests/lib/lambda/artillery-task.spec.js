@@ -1,11 +1,15 @@
 const chai = require('chai')
+const sinon = require('sinon')
+const sinonChai = require('sinon-chai')
 const spies = require('chai-spies')
 const proxyquire = require('proxyquire')
 
+chai.use(sinonChai)
 chai.use(spies)
 
 const sandbox = chai.spy.sandbox()
 const { expect } = chai
+const { match, stub } = sinon
 
 // ARTILLERY
 const defaultArtilleryRun = (script, { output }) => {
@@ -127,6 +131,37 @@ describe('Artillery Task', () => {
           InvocationType: 'invoke-type',
           Payload: JSON.stringify(event),
         })
+      })
+  })
+
+  it('executes with environment and removes entry from script', () => {
+    const runStub = stub()
+    runStub.callsFake(defaultArtilleryRun)
+
+    sandbox.on(artilleryTask, 'execute')
+    sandbox.on(artilleryRun, 'run', runStub)
+
+    return artilleryTask.executeAll({}, {}, [{ environment: 'test' }])
+      .then(() => {
+        expect(artilleryTask.execute).to.have.been.called.once
+        expect(artilleryRun.run).to.have.been.called.once
+        expect(runStub.calledWith({}, { output: match.func, environment: 'test' })).to.be.ok
+      })
+  })
+
+  it('executes without environment', () => {
+    const runStub = stub()
+    runStub.callsFake(defaultArtilleryRun)
+
+    sandbox.on(artilleryTask, 'execute')
+    sandbox.on(artilleryRun, 'run', runStub)
+
+    return artilleryTask.executeAll({}, {}, [{}])
+      .then(() => {
+        expect(artilleryTask.execute).to.have.been.called.once
+        expect(artilleryRun.run).to.have.been.called.once
+        console.log(runStub.getCall(0).args)
+        expect(runStub.calledWith({}, { output: match.func })).to.be.ok
       })
   })
 
