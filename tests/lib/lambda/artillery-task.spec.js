@@ -160,7 +160,6 @@ describe('Artillery Task', () => {
       .then(() => {
         expect(artilleryTask.execute).to.have.been.called.once
         expect(artilleryRun.run).to.have.been.called.once
-        console.log(runStub.getCall(0).args)
         expect(runStub.calledWith({}, { output: match.func })).to.be.ok
       })
   })

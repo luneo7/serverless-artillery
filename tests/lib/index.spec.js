@@ -713,7 +713,7 @@ scenarios:
       const willCompleteMessage = durationInSeconds => `${os.EOL
       }\tYour function has been invoked. The load is scheduled to be completed in ${durationInSeconds} seconds.${os.EOL}`
       const invokingMessage = environment => `${os.EOL
-      }\tInvoking test Lambda${environment ? ` with environment ${environment}` : ''}${os.EOL}`
+      }\tInvoking test Lambda${environment ? ` with environment: ${environment}` : ''}${os.EOL}`
 
       const replaceImpl = (scriptConstraintsResult, serverlessRunnerResult, testFunc) => (() => {
         const { scriptConstraints } = slsart.impl
