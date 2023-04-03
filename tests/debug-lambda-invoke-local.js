@@ -11,7 +11,7 @@ const yaml = require('js-yaml')
 const fs = require('fs')
 
 const script = fs.readFileSync('./script.yml', 'utf8')
-const input = yaml.safeLoad(script)
+const input = yaml.load(script)
 
 // 1) Use this code to inject script directly.
 // Otherwise, will use script.yml in current directory.

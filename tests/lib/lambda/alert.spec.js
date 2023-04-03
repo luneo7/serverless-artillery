@@ -1,16 +1,31 @@
-const aws = require('aws-sdk')
 const chai = require('chai')
 const path = require('path')
-const sinon = require('sinon')
-const sinonChai = require('sinon-chai')
+const spies = require('chai-spies')
+const proxyquire = require('proxyquire')
 
-chai.use(sinonChai)
-chai.should()
+chai.use(spies)
 
 const { expect } = chai
 
-// eslint-disable-next-line import/no-dynamic-require
-const alert = require(path.join('..', '..', '..', 'lib', 'lambda', 'alert.js'))
+const snsMock = chai.spy.interface({
+  publish: () => ({
+    promise: () => Promise.resolve(),
+  }),
+})
+
+const awsMock = {
+  // Declaring SNS mock as a class
+  SNS: function () { // eslint-disable-line object-shorthand, func-names
+    this.publish = snsMock.publish
+  },
+}
+
+const alert = proxyquire(
+  '../../../lib/lambda/alert.js', {
+    'aws-sdk': awsMock,
+  })
+
+
 // eslint-disable-next-line import/no-dynamic-require
 const sampling = require(path.join('..', '..', '..', 'lib', 'lambda', 'sampling.js'))
 
@@ -45,13 +60,8 @@ describe('Alerting', () => {
     })
   })
   describe('#send', () => {
-    let awsStub
     const topicArn = process.env.TOPIC_ARN
-    beforeEach(() => {
-      awsStub = sinon.stub(aws.Service.prototype, 'makeRequest').returns({ promise: () => Promise.resolve() })
-    })
     afterEach(() => {
-      awsStub.restore()
       if (topicArn) {
         process.env.TOPIC_ARN = topicArn
       }
@@ -74,8 +84,9 @@ describe('Alerting', () => {
       process.env.TOPIC_ARN = 'arn:aws:sns:us-east-1:123456789012:my_corporate_topic'
       return alert.send({}, { reports: [] })
         .then(() => {
-          expect(awsStub).to.have.been.calledOnce
-          expect(awsStub.getCall(0).args[1].TopicArn).to.eql(process.env.TOPIC_ARN)
+          expect(snsMock.publish).to.have.been.called.once
+          // eslint-disable-next-line no-underscore-dangle
+          expect(snsMock.publish.__spy.calls[0][0].TopicArn).to.eql(process.env.TOPIC_ARN)
         })
     })
   })

@@ -31,7 +31,7 @@ const testJsonScriptStringified = JSON.stringify(testJsonScript)
 const testYmlScriptStringified = fs.readFileSync(testYmlScriptPath, 'utf8')
 const testBadYmlScriptStringified = fs.readFileSync(testBadYmlScriptPath, 'utf8')
 
-const testYmlScript = yaml.safeLoad(testYmlScriptStringified)
+const testYmlScript = yaml.load(testYmlScriptStringified)
 
 const argv = process.argv.slice(0)
 
@@ -45,7 +45,7 @@ class AwsInvoke {
 const slsFakeInit = () => Promise.resolve()
 class ServerlessFake {
   constructor() {
-    this.version = '1.0.3'
+    this.version = '3.29.0'
     this.pluginManager = {
       plugins: [new AwsInvoke()],
     }
@@ -1073,7 +1073,7 @@ scenarios:
       it('writes default values to the default file',
         () => BbPromise.resolve()
           .then(() => {
-            slsart.impl.generateScript = () => ({ foo: 'bar' })
+            slsart.impl.generateScript = () => ('foo-bar')
             return slsart.script({})
           })
           .finally(() => {
@@ -1084,7 +1084,7 @@ scenarios:
       it('write default values to a new file with debug and trace',
         () => BbPromise.resolve()
           .then(() => {
-            slsart.impl.generateScript = () => ({ foo: 'bar' })
+            slsart.impl.generateScript = () => ('foo-bar')
             return slsart.script({ out: notAFile, debug: true, trace: true })
           })
           .finally(() => {
@@ -1150,7 +1150,7 @@ scenarios:
           .then(() => BbPromise.resolve({ path: path.join(tmpdir, 'serverless.yml') }))
           .then(slsart.impl.getScriptText)
           .then((yml) => {
-            const sls = yaml.safeLoad(yml)
+            const sls = yaml.load(yml)
             expect(sls.service).to.not.have.string('_')
           })
           .should.be.fulfilled

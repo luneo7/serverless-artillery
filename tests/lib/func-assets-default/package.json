@@ -3,11 +3,12 @@
   "repository": "n/a",
   "license": "Apache-2.0",
   "dependencies": {
-    "artillery": "2.0.0-22",
-    "js-yaml": "^3.11.0",
-    "lodash.merge": "^4.6.1",
+    "artillery": "2.0.0-31",
+    "js-yaml": "^4.1.0",
+    "lodash.get": "^4.4.2",
+    "lodash.merge": "^4.6.2",
     "lodash.omit": "^4.5.0",
-    "util-promisify": "^2.1.0",
+    "util-promisify": "^3.0.0",
     "snyk": "^1.316.1"
   },
   "scripts": {

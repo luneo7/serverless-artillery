@@ -1,5 +1,5 @@
 const { join } = require('path')
-const { safeLoad } = require('js-yaml')
+const { load } = require('js-yaml')
 const { readFileSync, readdirSync } = require('fs')
 const { test, verify } = require('./integration')
 const {
@@ -45,7 +45,7 @@ describe('./tests/integration', () => {
       .forEach((scriptName) => {
         testParameters[scriptName] = {
           name: scriptName,
-          script: safeLoad(readFileSync(join(scriptsPath, scriptName))),
+          script: load(readFileSync(join(scriptsPath, scriptName))),
           resources: {
             urls: urlsForName(scriptName),
             tempFolder,
