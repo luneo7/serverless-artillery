@@ -588,8 +588,8 @@ describe('./lib/lambda/taskPlan.js', () => {
         expect(phase.rampTo).to.be.undefined
       })
       // min >= chunkSize
-      it('splitting a ramp phase that at all times exceeds a rate of DEFAULT_MAX_CHUNK_REQUESTS_PER_SECOND into a' +
-        ' constant rate and remainder ramp phases.', () => {
+      it('splitting a ramp phase that at all times exceeds a rate of DEFAULT_MAX_CHUNK_REQUESTS_PER_SECOND into a'
+        + ' constant rate and remainder ramp phases.', () => {
         phase = {
           arrivalRate: defaultSettings.maxChunkRequestsPerSecond * 2,
           rampTo: defaultSettings.maxChunkRequestsPerSecond * 3,
@@ -614,8 +614,8 @@ describe('./lib/lambda/taskPlan.js', () => {
         expect(result).to.deep.equal(expected)
       })
       // max <= chunkSize
-      it('splitting ramp that at all times is less than DEFAULT_MAX_CHUNK_REQUESTS_PER_SECOND into a chunk of the ramp' +
-        ' phase and a remainder of a pause phase.', () => {
+      it('splitting ramp that at all times is less than DEFAULT_MAX_CHUNK_REQUESTS_PER_SECOND into a chunk of the ramp'
+        + ' phase and a remainder of a pause phase.', () => {
         phase = {
           arrivalRate: Math.floor(defaultSettings.maxChunkRequestsPerSecond * 0.5),
           rampTo: Math.floor(defaultSettings.maxChunkRequestsPerSecond * 0.75),
@@ -638,9 +638,9 @@ describe('./lib/lambda/taskPlan.js', () => {
         result = planning.splitPhaseByRequestsPerSecond(phase, defaultSettings.maxChunkRequestsPerSecond)
         expect(result).to.deep.equal(expected)
       })
-      it('splitting an ascending ramp phase that starts lower than and ends higher than' +
-        ' DEFAULT_MAX_CHUNK_REQUESTS_PER_SECOND into a chunk of a ramp phase followed by a constant rate phase and a' +
-        ' remainder of a pause phase followed by a ramp phase.', () => {
+      it('splitting an ascending ramp phase that starts lower than and ends higher than'
+        + ' DEFAULT_MAX_CHUNK_REQUESTS_PER_SECOND into a chunk of a ramp phase followed by a constant rate phase and a'
+        + ' remainder of a pause phase followed by a ramp phase.', () => {
         phase = {
           arrivalRate: defaultSettings.maxChunkRequestsPerSecond * 0.5,
           rampTo: defaultSettings.maxChunkRequestsPerSecond * 1.5,
@@ -672,9 +672,9 @@ describe('./lib/lambda/taskPlan.js', () => {
         result = planning.splitPhaseByRequestsPerSecond(phase, defaultSettings.maxChunkRequestsPerSecond)
         expect(result).to.deep.equal(expected)
       })
-      it('splitting a descending ramp phase that starts lower than and ends higher than' +
-        ' DEFAULT_MAX_CHUNK_REQUESTS_PER_SECOND into a chunk of a constant rate phase followed by a ramp phase and a' +
-        ' remainder of a ramp phase followed by a pause phase.', () => {
+      it('splitting a descending ramp phase that starts lower than and ends higher than'
+        + ' DEFAULT_MAX_CHUNK_REQUESTS_PER_SECOND into a chunk of a constant rate phase followed by a ramp phase and a'
+        + ' remainder of a ramp phase followed by a pause phase.', () => {
         phase = {
           arrivalRate: defaultSettings.maxChunkRequestsPerSecond * 1.5,
           rampTo: defaultSettings.maxChunkRequestsPerSecond * 0.5,
@@ -1153,7 +1153,7 @@ describe('./lib/lambda/taskPlan.js', () => {
           ],
         }
         result = planning.splitScriptByFlow(newScript, runOnceSampling)
-        const pauses = result.map(scriptChunk => scriptChunk.config.phases[0].pause)
+        const pauses = result.map((scriptChunk) => scriptChunk.config.phases[0].pause)
         let equalities = 0
         pauses.forEach((pause, index) => {
           pauses.slice(index + 1).forEach((value) => {
@@ -1174,17 +1174,18 @@ describe('./lib/lambda/taskPlan.js', () => {
           pauseVariance: 1,
         })
         expect(result.length).to.equal(2000)
-        expect(result.filter(chunkPhase => // filter for any pauses with a pause value outside of [avgPause - pauseVar, avgPause + pauseVar]
-          'pause' in chunkPhase &&
-          (
-            chunkPhase.pause < planning.averagePause - planning.pauseVariance ||
-            chunkPhase.pause > planning.averagePause + planning.pauseVariance
+        expect(result.filter((chunkPhase) => // filter for any pauses with a pause value outside of [avgPause - pauseVar, avgPause + pauseVar]
+          // eslint-disable-next-line implicit-arrow-linebreak
+          'pause' in chunkPhase
+          && (
+            chunkPhase.pause < planning.averagePause - planning.pauseVariance
+            || chunkPhase.pause > planning.averagePause + planning.pauseVariance
           ) // eslint-disable-line comma-dangle
         ).length).to.equal(0)
         expect(result.filter( // filter for any sample phases specifying more than one arrival
-          chunkPhase => (
-            !('pause' in chunkPhase) &&
-            (chunkPhase.duration !== 1 || chunkPhase.arrivalRate !== 1)) // eslint-disable-line comma-dangle
+          (chunkPhase) => (
+            !('pause' in chunkPhase)
+            && (chunkPhase.duration !== 1 || chunkPhase.arrivalRate !== 1)) // eslint-disable-line comma-dangle
         ).length).to.equal(0)
       })
     })

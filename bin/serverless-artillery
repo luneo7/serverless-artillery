@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 const os = require('os')
+// eslint-disable-next-line import/order
 const packageJson = require('../package.json')
-const slsArt = require('../lib/')
+const slsArt = require('../lib')
 
 /**
  * Determine whether any of the given flags exists in the given argv (object representation)
@@ -17,6 +18,7 @@ const hasFlag = (flags, argv) => flags.some(
   } // eslint-disable-line comma-dangle
 )
 
+// eslint-disable-next-line import/order
 const yargs = require('yargs')
   .help()
   .version(packageJson.version)
@@ -33,14 +35,14 @@ const yargs = require('yargs')
     },
   })
   .global(['D', 'V'])
-  .command('deploy', 'Deploy a default version of the function that will execute your Artillery scripts.  See ' +
-    'https://serverless.com/framework/docs/providers/aws/cli-reference/deploy/ for reference.', {})
+  .command('deploy', 'Deploy a default version of the function that will execute your Artillery scripts.  See '
+    + 'https://serverless.com/framework/docs/providers/aws/cli-reference/deploy/ for reference.', {})
   .command(
     'invoke',
-    'Invoke your function with your Artillery script.  Will prefer a script given by `-d`, `--data`, `-p`, or ' +
-    '`--path` over a `script.[yml|json]` file in the current directory over the default script.  Invocation mode ' +
-    'will default to "performance" but adding the `-a` flag will run the script in "acceptance" mode.  ' +
-    'See https://serverless.com/framework/docs/providers/aws/cli-reference/invoke/ for reference.',
+    'Invoke your function with your Artillery script.  Will prefer a script given by `-d`, `--data`, `-p`, or '
+    + '`--path` over a `script.[yml|json]` file in the current directory over the default script.  Invocation mode '
+    + 'will default to "performance" but adding the `-a` flag will run the script in "acceptance" mode.  '
+    + 'See https://serverless.com/framework/docs/providers/aws/cli-reference/invoke/ for reference.',
     {
       a: {
         alias: 'acceptance',
@@ -49,8 +51,8 @@ const yargs = require('yargs')
       },
       m: {
         alias: 'monitoring',
-        description: 'Execute the script in monitoring mode.  It will execute each flow a multiple of times, alerting ' +
-          'if the number of errors exceeds the configured threshold.',
+        description: 'Execute the script in monitoring mode.  It will execute each flow a multiple of times, alerting '
+          + 'if the number of errors exceeds the configured threshold.',
         requiresArg: false,
       },
       d: {
@@ -118,8 +120,8 @@ const yargs = require('yargs')
           `Notable exceptions include: "${reservedFlags.join('", "')}" `,
           `flags which are reserved due to assumptions of \`serverless-artillery\`${os.EOL}`,
           `**BREAKING CHANGE**${os.EOL}${os.EOL}`,
-          'NOTE: if you have intended to supply the "STAGE" of the service, please use the long form of that flag ' +
-          `(\`--stage\`) to specify that setting.  This constraint will eventually be removed.${os.EOL}${os.EOL}`,
+          'NOTE: if you have intended to supply the "STAGE" of the service, please use the long form of that flag '
+          + `(\`--stage\`) to specify that setting.  This constraint will eventually be removed.${os.EOL}${os.EOL}`,
           `DDOS On!${os.EOL}${os.EOL}`,
         ].join(''))
         process.exit(1)
@@ -131,7 +133,7 @@ const yargs = require('yargs')
           `!ERROR!${os.EOL}`,
           'One of the `serverless` flags you provided is reserved for exclusive `serverless-artillery` use, ',
           `reserved flags include: "${
-            Object.keys(reservedFlags).map(key => reservedFlags[key]).join('", "')
+            Object.keys(reservedFlags).map((key) => reservedFlags[key]).join('", "')
           }".${os.EOL}`,
           'Please see the "reserved flags" documentation in the README ',
           `(https://www.npmjs.com/package/serverless-artillery#reserved-flags).${os.EOL}`,
@@ -142,7 +144,7 @@ const yargs = require('yargs')
           os.EOL,
           `!ERROR!${os.EOL}`,
           `One of the flags you provided is unsupported by \`serverless-artillery\`.  Unsupported flags include: "${
-            Object.keys(unsupportedFlags).map(key => unsupportedFlags[key]).join('", "')}"${os.EOL}`,
+            Object.keys(unsupportedFlags).map((key) => unsupportedFlags[key]).join('", "')}"${os.EOL}`,
           'Please see the "unsupported flags" documentation in the README ',
           `(https://www.npmjs.com/package/serverless-artillery#unsupported-flags).${os.EOL}`,
         ].join(''))
@@ -151,12 +153,12 @@ const yargs = require('yargs')
     } // eslint-disable-line comma-dangle
   )
   .command('kill', 'Stop a currently running load test and remove the function.', {})
-  .command('remove', 'Remove the function and the associated resources created for or by it.  See ' +
-    'https://serverless.com/framework/docs/providers/aws/cli-reference/remove/ for reference.', {})
+  .command('remove', 'Remove the function and the associated resources created for or by it.  See '
+    + 'https://serverless.com/framework/docs/providers/aws/cli-reference/remove/ for reference.', {})
   .command(
     'script',
-    'Create a local Artillery script so that you can customize it for your specific load requirements.  ' +
-    'See https://artillery.io for documentation.',
+    'Create a local Artillery script so that you can customize it for your specific load requirements.  '
+    + 'See https://artillery.io for documentation.',
     {
       e: {
         alias: 'endpoint',
@@ -178,8 +180,8 @@ const yargs = require('yargs')
       },
       t: {
         alias: 'rampTo',
-        description: 'The rate to ramp up to from the given (starting) rate, in requests per second at which to load ' +
-          'the given endpoint.',
+        description: 'The rate to ramp up to from the given (starting) rate, in requests per second at which to load '
+          + 'the given endpoint.',
         requiresArg: true,
         type: 'number',
       },
@@ -191,8 +193,8 @@ const yargs = require('yargs')
       },
     } // eslint-disable-line comma-dangle
   )
-  .command('configure', 'Create a local copy of the deployment assets for modification and deployment.  See ' +
-    'https://serverless.com/framework/docs/ for documentation.', {})
+  .command('configure', 'Create a local copy of the deployment assets for modification and deployment.  See '
+    + 'https://serverless.com/framework/docs/ for documentation.', {})
   .demand(1)
 
 const command = yargs.argv._[0]

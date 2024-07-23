@@ -3,31 +3,32 @@ const sinon = require('sinon')
 const sinonChai = require('sinon-chai')
 const spies = require('chai-spies')
 const proxyquire = require('proxyquire')
+const fs = require('fs')
 
 chai.use(sinonChai)
 chai.use(spies)
 
 const sandbox = chai.spy.sandbox()
 const { expect } = chai
-const { match, stub } = sinon
+const { match, spy } = sinon
 
 // ARTILLERY
-const defaultArtilleryRun = (script, { output }) => {
-  output({ aggregate: {} })
-  process.exit(0)
+// eslint-disable-next-line no-unused-vars
+const defaultArtilleryRun = (args) => {
+  fs.writeFile(args[1], JSON.stringify({ aggregate: {} }), 'utf8', () => {
+    process.exit(0)
+  })
 }
 const artilleryRun = {
   run: defaultArtilleryRun,
 }
 const artilleryMock = {
-  run: (script, options) => artilleryRun.run(script, options),
+  run: (args) => artilleryRun.run(args),
 }
 
 // AWS
 const awsLambdaMock = {
-  invoke: () => ({
-    promise: () => Promise.resolve({ Payload: '{}' }),
-  }),
+  invoke: () => Promise.resolve({ Payload: '{}' }),
 }
 const awsMock = {
   // Declaring Lambda mock as a class
@@ -41,12 +42,12 @@ const monitoringMock = {}
 const performanceMock = {}
 
 const artilleryTask = proxyquire(
-  '../../../lib/lambda/artillery-task.js', {
-    artillery: artilleryMock,
-    'aws-sdk': awsMock,
-    './artillery-acceptance.js': () => acceptanceMock,
-    './artillery-monitoring.js': () => monitoringMock,
-    './artillery-performance.js': () => performanceMock,
+  '../../../lib/lambda/artillery-task', {
+    'artillery/lib/cmds/run': artilleryMock,
+    '@aws-sdk/client-lambda': awsMock,
+    './artillery-acceptance': () => acceptanceMock,
+    './artillery-monitoring': () => monitoringMock,
+    './artillery-performance': () => performanceMock,
   })
 
 describe('Artillery Task', () => {
@@ -135,8 +136,7 @@ describe('Artillery Task', () => {
   })
 
   it('executes with environment and removes entry from script', () => {
-    const runStub = stub()
-    runStub.callsFake(defaultArtilleryRun)
+    const runStub = spy(defaultArtilleryRun)
 
     sandbox.on(artilleryTask, 'execute')
     sandbox.on(artilleryRun, 'run', runStub)
@@ -145,13 +145,17 @@ describe('Artillery Task', () => {
       .then(() => {
         expect(artilleryTask.execute).to.have.been.called.once
         expect(artilleryRun.run).to.have.been.called.once
-        expect(runStub.calledWith({}, { output: match.func, environment: 'test' })).to.be.ok
+        expect(runStub.calledWith(match.array)).to.be.ok
+        const callArgs = runStub.getCall(0).args[0]
+        expect(callArgs[0]).to.be.equal('--output')
+        expect(callArgs[1]).to.be.a('string')
+        expect(callArgs[2]).to.be.equal('--environment')
+        expect(callArgs[3]).to.be.equal('test')
       })
   })
 
   it('executes without environment', () => {
-    const runStub = stub()
-    runStub.callsFake(defaultArtilleryRun)
+    const runStub = spy(defaultArtilleryRun)
 
     sandbox.on(artilleryTask, 'execute')
     sandbox.on(artilleryRun, 'run', runStub)
@@ -160,7 +164,11 @@ describe('Artillery Task', () => {
       .then(() => {
         expect(artilleryTask.execute).to.have.been.called.once
         expect(artilleryRun.run).to.have.been.called.once
-        expect(runStub.calledWith({}, { output: match.func })).to.be.ok
+        expect(runStub.calledWith(match.array)).to.be.ok
+        const callArgs = runStub.getCall(0).args[0]
+        expect(callArgs[0]).to.be.equal('--output')
+        expect(callArgs[1]).to.be.a('string')
+        expect(callArgs[2]).to.be.a('string')
       })
   })
 

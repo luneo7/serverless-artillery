@@ -1,13 +1,12 @@
 /* eslint-disable no-return-assign, no-nested-ternary */
-
-const AWS = require('aws-sdk')
+const { CloudWatchLogs } = require('@aws-sdk/client-cloudwatch-logs') // eslint-disable-line import/no-extraneous-dependencies
 
 module.exports = (
   logGroupName,
-  cloudWatchLogs = new AWS.CloudWatchLogs({ apiVersion: '2014-03-28' }),
+  cloudWatchLogs = new CloudWatchLogs(),
   log = console.log
 ) => ({
-  recordRequest: path => log(`REQUEST ${path}`),
+  recordRequest: (path) => log(`REQUEST ${path}`),
   getRequests: (path) => {
     const params = {
       logGroupName,
@@ -16,7 +15,7 @@ module.exports = (
 
     let allRequests = []
 
-    const query = p => cloudWatchLogs.filterLogEvents(p).promise()
+    const query = (p) => cloudWatchLogs.filterLogEvents(p)
       .then((logEvents) => {
         const pathRequests = logEvents.events.map((event) => {
           const { timestamp } = event
@@ -32,10 +31,10 @@ module.exports = (
         return logEvents
       })
 
-    const queryAll = p => query(p)
+    const queryAll = (p) => query(p)
       .then((logEvents) => {
         if (logEvents.nextToken !== undefined) {
-          const updatedParams = Object.assign({}, p, { nextToken: logEvents.nextToken })
+          const updatedParams = { ...p, nextToken: logEvents.nextToken }
           return queryAll(updatedParams)
         } else {
           return JSON.stringify(allRequests)

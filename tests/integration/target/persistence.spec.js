@@ -12,10 +12,9 @@ describe('./tests/integration/target/persistence', () => {
   const path = 'this/is/a/test'
 
   describe('#recordRequest', () => {
-    it('writes a request', () =>
-      persistance({},
-        message => assert.equal(message, `REQUEST ${path}`, 'must log request path')
-      ).recordRequest(path)
+    it('writes a request', () => persistance({},
+      (message) => assert.equal(message, `REQUEST ${path}`, 'must log request path')
+    ).recordRequest(path)
     )
   })
 
@@ -41,35 +40,31 @@ describe('./tests/integration/target/persistence', () => {
       { message, timestamp: 1500 },
     ]
 
-    it('reads requests within a range', () =>
-      persistance(logGroupName, {
-        // Mock of CloudWatchLogs filterLogEvents to validate parameters and return results
-        filterLogEvents: (params) => {
-          assert.equal(params.logGroupName, logGroupName, 'correct log group is queried')
-          assert.equal(params.filterPattern, `REQUEST ${path}`, 'uses path to find requests')
+    it('reads requests within a range', () => persistance(logGroupName, {
+      // Mock of CloudWatchLogs filterLogEvents to validate parameters and return results
+      filterLogEvents: (params) => {
+        assert.equal(params.logGroupName, logGroupName, 'correct log group is queried')
+        assert.equal(params.filterPattern, `REQUEST ${path}`, 'uses path to find requests')
 
-          return { promise: () => Promise.resolve({ events: logEvents }) }
-        },
-      }).getRequests(path)
-        .then(result => assert.equal(result, JSON.stringify(items), 'returns records found'))
+        return Promise.resolve({ events: logEvents })
+      },
+    }).getRequests(path)
+      .then((result) => assert.equal(result, JSON.stringify(items), 'returns records found'))
     )
 
-    it('paginates query to retrieve all requests', () =>
-      persistance(logGroupName, {
-        // Mock of CloudWatchLogs filterLogEvents to validate parameters and return results
-        filterLogEvents: params => ({
-          promise: () => {
-            const nextToken = 'this-is-a-token'
-            if (!params.nextToken) {
-              return Promise.resolve({ events: logEvents, nextToken })
-            } else {
-              assert.equal(params.nextToken, nextToken, 'uses the last key')
-              return Promise.resolve({ events: logEvents2 })
-            }
-          },
-        }),
-      }).getRequests(path)
-        .then(result => assert.equal(result, JSON.stringify(items2), 'returns records found'))
+    it('paginates query to retrieve all requests', () => persistance(logGroupName, {
+      // Mock of CloudWatchLogs filterLogEvents to validate parameters and return results
+      filterLogEvents: (params) => {
+        const nextToken = 'this-is-a-token'
+        if (!params.nextToken) {
+          return Promise.resolve({ events: logEvents, nextToken })
+        } else {
+          assert.equal(params.nextToken, nextToken, 'uses the last key')
+          return Promise.resolve({ events: logEvents2 })
+        }
+      },
+    }).getRequests(path)
+      .then((result) => assert.equal(result, JSON.stringify(items2), 'returns records found'))
     )
   })
 })

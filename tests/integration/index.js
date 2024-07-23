@@ -9,11 +9,10 @@ const {
 
 const pathParameter = '{id}'
 
-const urlsForScript = ({ testUrl, listUrl }) =>
-  scriptName => ({
-    testUrl: testUrl.replace(pathParameter, scriptName),
-    listUrl: listUrl.replace(pathParameter, scriptName),
-  })
+const urlsForScript = ({ testUrl, listUrl }) => (scriptName) => ({
+  testUrl: testUrl.replace(pathParameter, scriptName),
+  listUrl: listUrl.replace(pathParameter, scriptName),
+})
 
 describe('./tests/integration', () => {
   // Uses Serverless to deploy both SA and test target stack
@@ -33,7 +32,7 @@ describe('./tests/integration', () => {
 
         return deployInfo
       })
-      .catch(err => console.error(`Failed to deploy test stack: ${err.message}`))
+      .catch((err) => console.error(`Failed to deploy test stack: ${err.message}`))
   }
 
   const scriptsPath = join(__dirname, 'scripts')
@@ -65,7 +64,7 @@ describe('./tests/integration', () => {
   })
 
   describe('waits for CloudWatch', () => {
-    it('waits for logs to propagate', () => new Promise(resolve => setTimeout(resolve, 120 * 1000)))
+    it('waits for logs to propagate', () => new Promise((resolve) => { setTimeout(resolve, 120 * 1000) }))
   })
 
   describe('check actual load provided', () => {

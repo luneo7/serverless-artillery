@@ -12,9 +12,9 @@ const analysisMock = {}
 const artilleryTaskMock = {}
 
 const artilleryPerformance = proxyquire(
-  '../../../lib/lambda/artillery-performance.js', {
-    './planning.js': planningMock,
-    './analysis.js': analysisMock,
+  '../../../lib/lambda/artillery-performance', {
+    './planning': planningMock,
+    './analysis': analysisMock,
   })
 
 describe('Artillery Performance', () => {
@@ -30,28 +30,25 @@ describe('Artillery Performance', () => {
     sandbox.on(artilleryTaskMock, 'executeAll', () => Promise.resolve(testResults))
   })
 
-  it('plans the load', () =>
-    artilleryPerformance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(planningMock.planPerformance).to.have.been.called.once
-        expect(planningMock.planPerformance).to.have.been.called.with.exactly(testTimeNow, testScript, testSettings)
-      })
+  it('plans the load', () => artilleryPerformance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(planningMock.planPerformance).to.have.been.called.once
+      expect(planningMock.planPerformance).to.have.been.called.with.exactly(testTimeNow, testScript, testSettings)
+    })
   )
 
-  it('calls artillery task to execute the load', () =>
-    artilleryPerformance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(artilleryTaskMock.executeAll).to.have.been.called.once
-        expect(artilleryTaskMock.executeAll).to.have.been.called.with.exactly(testScript, testSettings, testPlans, testTimeNow)
-      })
+  it('calls artillery task to execute the load', () => artilleryPerformance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(artilleryTaskMock.executeAll).to.have.been.called.once
+      expect(artilleryTaskMock.executeAll).to.have.been.called.with.exactly(testScript, testSettings, testPlans, testTimeNow)
+    })
   )
 
-  it('analyzes results using acceptance criteria', () =>
-    artilleryPerformance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(analysisMock.analyzePerformance).to.have.been.called.once
-        expect(analysisMock.analyzePerformance).to.have.been.called.with.exactly(testTimeNow, testScript, testSettings, testResults)
-      })
+  it('analyzes results using acceptance criteria', () => artilleryPerformance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(analysisMock.analyzePerformance).to.have.been.called.once
+      expect(analysisMock.analyzePerformance).to.have.been.called.with.exactly(testTimeNow, testScript, testSettings, testResults)
+    })
   )
 
   afterEach(() => {

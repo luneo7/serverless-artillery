@@ -8,9 +8,7 @@ chai.use(spies)
 const { expect } = chai
 
 const snsMock = chai.spy.interface({
-  publish: () => ({
-    promise: () => Promise.resolve(),
-  }),
+  publish: () => Promise.resolve(),
 })
 
 const awsMock = {
@@ -21,10 +19,9 @@ const awsMock = {
 }
 
 const alert = proxyquire(
-  '../../../lib/lambda/alert.js', {
-    'aws-sdk': awsMock,
+  '../../../lib/lambda/alert', {
+    '@aws-sdk/client-sns': awsMock,
   })
-
 
 // eslint-disable-next-line import/no-dynamic-require
 const sampling = require(path.join('..', '..', '..', 'lib', 'lambda', 'sampling.js'))

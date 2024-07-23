@@ -45,7 +45,8 @@ describe('./lib/npm.js:exports', function npmExports() { // eslint-disable-line 
           })
           .then(() => {
             npm.install(tmpdir)
-            npm.install(tmpdir, 'aws-sdk') // given that it is skipped as "already present in lambda"
+            npm.install(tmpdir, '@aws-sdk/client-lambda') // given that it is skipped as "already present in lambda"
+            npm.install(tmpdir, '@aws-sdk/client-sns') // given that it is skipped as "already present in lambda"
             require(path.join(tmpdir, 'handler.js')) // eslint-disable-line global-require, import/no-dynamic-require
           })
           .then(() => {
@@ -53,7 +54,7 @@ describe('./lib/npm.js:exports', function npmExports() { // eslint-disable-line 
             if (packageJson.dependencies) {
               dependencyChecks = dependencyChecks.concat(
                 Object.keys(packageJson.dependencies)
-                  .map(dependency => fs.accessAsync(path.join(tmpdir, 'node_modules', dependency))
+                  .map((dependency) => fs.accessAsync(path.join(tmpdir, 'node_modules', dependency))
                     .then((err) => {
                       expect(err).to.be.undefined
                     })))
@@ -61,7 +62,7 @@ describe('./lib/npm.js:exports', function npmExports() { // eslint-disable-line 
             if (packageJson.devDependencies) {
               dependencyChecks = dependencyChecks.concat(
                 Object.keys(packageJson.devDependencies)
-                  .map(devDependency => fs.accessAsync(path.join(tmpdir, 'node_modules', devDependency))
+                  .map((devDependency) => fs.accessAsync(path.join(tmpdir, 'node_modules', devDependency))
                     .then((err) => {
                       expect(err).to.be.an('object')
                       expect(err).to.have.a.property('code')

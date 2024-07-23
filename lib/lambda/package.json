@@ -4,7 +4,7 @@
   "repository": "n/a",
   "license": "Apache-2.0",
   "dependencies": {
-    "artillery": "2.0.0-31",
+    "artillery": "2.0.18",
     "js-yaml": "^4.1.0",
     "lodash.get": "^4.4.2",
     "lodash.merge": "^4.6.2",

@@ -6,9 +6,9 @@
  * deployed which might be invoked (3).
  */
 
-const handler = require('../lib/lambda/handler.js')
 const yaml = require('js-yaml')
 const fs = require('fs')
+const handler = require('../lib/lambda/handler')
 
 const script = fs.readFileSync('./script.yml', 'utf8')
 const input = yaml.load(script)

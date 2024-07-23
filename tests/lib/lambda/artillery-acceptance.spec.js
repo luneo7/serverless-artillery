@@ -13,10 +13,10 @@ const analysisMock = {}
 const artilleryTaskMock = {}
 
 const artilleryAcceptance = proxyquire(
-  '../../../lib/lambda/artillery-acceptance.js', {
-    './sampling.js': samplingMock,
-    './planning.js': planningMock,
-    './analysis.js': analysisMock,
+  '../../../lib/lambda/artillery-acceptance', {
+    './sampling': samplingMock,
+    './planning': planningMock,
+    './analysis': analysisMock,
   })
 
 describe('Artillery Acceptance', () => {
@@ -34,30 +34,27 @@ describe('Artillery Acceptance', () => {
     sandbox.on(artilleryTaskMock, 'executeAll', () => Promise.resolve(testResults))
   })
 
-  it('uses sampling for planning the load', () =>
-    artilleryAcceptance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(samplingMock.applyAcceptanceSamplingToScript).to.have.been.called.once
-        expect(samplingMock.applyAcceptanceSamplingToScript).to.have.been.called.with.exactly(testScript, testSettings)
-        expect(planningMock.planSamples).to.have.been.called.once
-        expect(planningMock.planSamples).to.have.been.called.with.exactly(testTimeNow, testScriptSampling, testSettings)
-      })
+  it('uses sampling for planning the load', () => artilleryAcceptance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(samplingMock.applyAcceptanceSamplingToScript).to.have.been.called.once
+      expect(samplingMock.applyAcceptanceSamplingToScript).to.have.been.called.with.exactly(testScript, testSettings)
+      expect(planningMock.planSamples).to.have.been.called.once
+      expect(planningMock.planSamples).to.have.been.called.with.exactly(testTimeNow, testScriptSampling, testSettings)
+    })
   )
 
-  it('calls artillery task to execute the load', () =>
-    artilleryAcceptance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(artilleryTaskMock.executeAll).to.have.been.called.once
-        expect(artilleryTaskMock.executeAll).to.have.been.called.with.exactly(testScriptSampling, testSettings, testPlans, testTimeNow)
-      })
+  it('calls artillery task to execute the load', () => artilleryAcceptance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(artilleryTaskMock.executeAll).to.have.been.called.once
+      expect(artilleryTaskMock.executeAll).to.have.been.called.with.exactly(testScriptSampling, testSettings, testPlans, testTimeNow)
+    })
   )
 
-  it('analyzes results using acceptance criteria', () =>
-    artilleryAcceptance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(analysisMock.analyzeAcceptance).to.have.been.called.once
-        expect(analysisMock.analyzeAcceptance).to.have.been.called.with.exactly(testTimeNow, testScriptSampling, testSettings, testResults)
-      })
+  it('analyzes results using acceptance criteria', () => artilleryAcceptance(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(analysisMock.analyzeAcceptance).to.have.been.called.once
+      expect(analysisMock.analyzeAcceptance).to.have.been.called.with.exactly(testTimeNow, testScriptSampling, testSettings, testResults)
+    })
   )
 
   afterEach(() => {

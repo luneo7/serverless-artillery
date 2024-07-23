@@ -14,11 +14,11 @@ const artilleryTaskMock = {}
 const alertMock = {}
 
 const artilleryMonitoring = proxyquire(
-  '../../../lib/lambda/artillery-monitoring.js', {
-    './alert.js': alertMock,
-    './sampling.js': samplingMock,
-    './planning.js': planningMock,
-    './analysis.js': analysisMock,
+  '../../../lib/lambda/artillery-monitoring', {
+    './alert': alertMock,
+    './sampling': samplingMock,
+    './planning': planningMock,
+    './analysis': analysisMock,
   })
 
 describe('Artillery Monitoring', () => {
@@ -37,30 +37,27 @@ describe('Artillery Monitoring', () => {
     sandbox.on(alertMock, 'send', () => Promise.resolve())
   })
 
-  it('uses sampling for planning the load', () =>
-    artilleryMonitoring(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(samplingMock.applyMonitoringSamplingToScript).to.have.been.called.once
-        expect(samplingMock.applyMonitoringSamplingToScript).to.have.been.called.with.exactly(testScript, testSettings)
-        expect(planningMock.planSamples).to.have.been.called.once
-        expect(planningMock.planSamples).to.have.been.called.with.exactly(testTimeNow, testScriptSampling, testSettings)
-      })
+  it('uses sampling for planning the load', () => artilleryMonitoring(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(samplingMock.applyMonitoringSamplingToScript).to.have.been.called.once
+      expect(samplingMock.applyMonitoringSamplingToScript).to.have.been.called.with.exactly(testScript, testSettings)
+      expect(planningMock.planSamples).to.have.been.called.once
+      expect(planningMock.planSamples).to.have.been.called.with.exactly(testTimeNow, testScriptSampling, testSettings)
+    })
   )
 
-  it('calls artillery task to execute the load', () =>
-    artilleryMonitoring(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(artilleryTaskMock.executeAll).to.have.been.called.once
-        expect(artilleryTaskMock.executeAll).to.have.been.called.with.exactly(testScriptSampling, testSettings, testPlans, testTimeNow)
-      })
+  it('calls artillery task to execute the load', () => artilleryMonitoring(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(artilleryTaskMock.executeAll).to.have.been.called.once
+      expect(artilleryTaskMock.executeAll).to.have.been.called.with.exactly(testScriptSampling, testSettings, testPlans, testTimeNow)
+    })
   )
 
-  it('analyzes results using acceptance criteria', () =>
-    artilleryMonitoring(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
-      .then(() => {
-        expect(analysisMock.analyzeMonitoring).to.have.been.called.once
-        expect(analysisMock.analyzeMonitoring).to.have.been.called.with.exactly(testTimeNow, testScript, testSettings, testResults)
-      })
+  it('analyzes results using acceptance criteria', () => artilleryMonitoring(artilleryTaskMock).execute(testTimeNow, testScript, testSettings)
+    .then(() => {
+      expect(analysisMock.analyzeMonitoring).to.have.been.called.once
+      expect(analysisMock.analyzeMonitoring).to.have.been.called.with.exactly(testTimeNow, testScript, testSettings, testResults)
+    })
   )
 
   it('alerts in the case of errors', () => {
